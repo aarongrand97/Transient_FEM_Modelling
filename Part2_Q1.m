@@ -1,11 +1,10 @@
-Cs = zeros(101, 11);
-
+T_Outer = 328.41;
 %Step 1 Initialise mesh
-NElem = 10;
-mesh = OneDimLinearMeshGen(0,1,NElem);
+NElem = 12;
+mesh = OneDimLinearMeshGen(0,0.01,NElem);
 %Step 2 Initialise time integration scheme
 theta = 1; % Backwards Euler
-dt = 0.01;
+dt = 0.1;
 %Step 3 Define material coefficients
 D = 1;
 Lmbd = 0;
@@ -16,14 +15,20 @@ M = zeros(NElem+1);
 K = zeros(NElem+1);
 GV = zeros(NElem+1, 1);
 %Step 5 Define two solution variable vectors
-Ccurrent = zeros(NElem+1, 1);
-Cnext = zeros(NElem+1, 1);
+Tcurrent = zeros(NElem+1, 1);
+Tnext = zeros(NElem+1, 1);
 %Step 6 Set initial conditions
-Ccurrent(NElem+1) = 1; % c(1,t) = 1
-Cs(1,:) = Ccurrent;
+Tcurrent = Tcurrent + 310.15;
+Tcurrent(NElem+1) = 310.15; % Not actually needed but explicit
+Tcurrent(1) = T_Outer;
+
 %Step 7 loop over time from tstep = 1 to N
-T = 1.0;
+T = 50;
 N = T/dt;
+
+Cs = zeros(N+1, NElem+1);
+Cs(1,:) = Tcurrent;
+
 for tstep = 1:N
     %Loop over elements
     for elemID = 1:NElem
@@ -41,7 +46,7 @@ for tstep = 1:N
     %Calculate matrix to multiply previous solution
     PrevSolMat = M - (1-theta)*dt*K;
     %Multiply this matrix by previous solution and store in Global Vector
-    GV = PrevSolMat*Ccurrent;
+    GV = PrevSolMat*Tcurrent;
     %Loop over elements
     for elemID = 1:NElem
         %Calculate local element sources vectors
@@ -51,54 +56,53 @@ for tstep = 1:N
         % Neumann stuff
     end
     %Set Dirichlet Boundary Conditions
-    [GM, GV] = applyBCs(GM, GV, D, 'Dlet', 0, 'Dlet', 1, NElem+1);
+    [GM, GV] = applyBCs(GM, GV, D, 'Dlet', T_Outer, 'Dlet', 310.15, NElem+1);
     %Solve the final matrix system to obtain Cnext
-    Cnext = GM\GV;
+    Tnext = GM\GV;
     %Set Ccurrent equal to Cnext
-    Ccurrent = Cnext;
+    Tcurrent = Tnext;
     %Re-initialise zeros
     GM = zeros(NElem+1);
     M = zeros(NElem+1);
     K = zeros(NElem+1);
     GV = zeros(NElem+1, 1);
     %Plot/write to file the solution Ccurrent
-    Cs(tstep+1, :) = Ccurrent;
+    Cs(tstep+1, :) = Tcurrent;
 end
 
-% Plot (a)
 figure;
 hold on;
-x = linspace(0,1,NElem+1);
-plota_ts = [0.05, 0.1, 0.3, 1.0];
-plot_a_sym = [":", "-.", "--", "-"];
-for i = 1:numel(plota_ts)
-    row = plota_ts(i)/dt + 1;
-    plot(x, Cs(row,:), plot_a_sym(i)+"k", "LineWidth", 1.0);
+x = linspace(0, 0.01, NElem+1);
+for i = 2:10:102
+    plot(x, Cs(i,:));
 end
-ylabel('c(x,t)');
-xlabel('x');
-set(gca, 'fontsize', 14);
-legend("t = 0.05s", "t = 0.1s", "t = 0.3s", "t = 1.0s", "Location", "Northwest");
-grid on;
-grid minor;
 
-% Plot (b)
-figure;
-hold on;
-x = 0.8;
-t = linspace(0, 1.0, 100);
-c_anlytc = TransientAnalyticSoln(x, t);
-plot(t, c_anlytc, "-k", "Linewidth", 1.0);
+%%%%%%% Part 2 %%%%%%%
+ENodeIndex = (((NElem)*(0.01/6))/0.01) + 1;
+DNodeIndex = (((NElem)*(0.005))/0.01) + 1;
 
-plotb_ts = 0:0.1:1;
-rows = int8(plotb_ts/dt + 1);
-plot(plotb_ts, Cs(rows, 9), "--xk", "Linewidth", 1.0, "MarkerSize", 10);
+E_Temps = Cs(:, ENodeIndex);
+D_Temps = Cs(:, DNodeIndex);
 
-ylim([0 1])
-xlim([0 1])
-grid on;
-grid minor;
-xlabel("t");
-ylabel("c(0.8,t)");
-legend("Analytical Solution", "Numerical Solution");
-set(gca, 'fontsize', 14);
+burn_limit = 317.5;
+
+E_Burn_Bool = E_Temps > burn_limit;
+D_Burn_Bool = D_Temps > burn_limit;
+
+E_Burn_Vals = E_Temps(E_Burn_Bool);
+D_Burn_Vals = D_Temps(D_Burn_Bool);
+
+Gamma_E_Eq = (2e98)*exp(-(12017)./(E_Burn_Vals-273.15));
+Gamma_D_Eq = (2e98)*exp(-(12017)./(D_Burn_Vals-273.15));
+
+Gamma_E = dt * trapz(Gamma_E_Eq);
+Gamma_D = dt * trapz(Gamma_D_Eq);
+
+if(Gamma_E > 1)
+    disp("Second Degree");
+    if(Gamma_D > 1)
+        disp("Third Degree");
+    end
+else
+    disp("No burn");
+end

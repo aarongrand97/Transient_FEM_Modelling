@@ -8,6 +8,14 @@ if(eID > msh.ne || eID < 1)
     throw(ME);
 end
 
+if(msh.elem(eID).x(1) < (0.01/6))
+    D = 25/(1200*3300);
+elseif(msh.elem(eID).x(1) < 0.005)
+    D = 40/(1200*3300);
+else
+    D = 20/(1200*3300);
+end
+
 % Fetch Jacobian for this element from mesh
 Jcbn = msh.elem(eID).J;
 % Calculate derivatives
