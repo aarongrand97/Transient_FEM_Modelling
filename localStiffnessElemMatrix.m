@@ -4,6 +4,6 @@ function [localStiffElemMatrix] = localStiffnessElemMatrix(D, Lmbd, eID, mesh)
 DMatrix = DiffusionElemMatrix(D, eID, mesh);
 lmbdMatrix = LinearReactionElemMatrix(Lmbd, eID, mesh);
 
-localStiffElemMatrix = DMatrix-lmbdMatrix;
+localStiffElemMatrix = DMatrix - lmbdMatrix;
 end
 

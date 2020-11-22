@@ -9,11 +9,11 @@ for eID = 1 : mesh.ne
         mesh.elem(eID).f = 0;
     elseif(mesh.elem(eID).x(1) < 0.005)
         mesh.elem(eID).D = 40/(1200*3300);
-        mesh.elem(eID).lmbda = (0.0375*1060*3770)/(1200*3300);
+        mesh.elem(eID).lmbda = -(0.0375*1060*3770)/(1200*3300);
         mesh.elem(eID).f = (0.0375*1060*3770*310.15)/(1200*3300);
     else
         mesh.elem(eID).D = 20/(1200*3300);
-        mesh.elem(eID).lmbda = (0.0375*1060*3770)/(1200*3300);
+        mesh.elem(eID).lmbda = -(0.0375*1060*3770)/(1200*3300);
         mesh.elem(eID).f = (0.0375*1060*3770*310.15)/(1200*3300);
     end
 end

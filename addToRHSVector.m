@@ -10,7 +10,7 @@ if(elemID >= length(RHS))
     throw(ME);
 end
 % Add local element values to global vector
-RHS(elemID) = RHS(elemID) - sourceElemVector(1);
-RHS(elemID+1) = RHS(elemID+1) - sourceElemVector(2);
+RHS(elemID) = RHS(elemID) + sourceElemVector(1);
+RHS(elemID+1) = RHS(elemID+1) + sourceElemVector(2);
 end
 

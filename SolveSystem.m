@@ -1,4 +1,6 @@
-T_Outer = 327.88;
+function [Burn] = SolveSystem(T_Outer)
+%UNTITLED3 Summary of this function goes here
+%   Detailed explanation goes here
 %Step 1 Initialise mesh
 NElem = 12;
 mesh = OneDimLinearMeshGen(0,0.01,NElem);
@@ -71,12 +73,12 @@ for tstep = 1:N
     Ts(tstep+1, :) = Tcurrent;
 end
 
-figure;
-hold on;
-x = linspace(0, 0.01, NElem+1);
-for i = 2:10:102
-    plot(x, Ts(i,:));
-end
+% figure;
+% hold on;
+% x = linspace(0, 0.01, NElem+1);
+% for i = 2:10:102
+%     plot(x, Ts(i,:));
+% end
 
 %%%%%%% Part 2 %%%%%%%
 ENodeIndex = (((NElem)*(0.01/6))/0.01) + 1;
@@ -100,10 +102,14 @@ Gamma_E = dt * trapz(Gamma_E_Eq);
 Gamma_D = dt * trapz(Gamma_D_Eq);
 
 if(Gamma_E > 1)
-    disp("Second Degree");
     if(Gamma_D > 1)
-        disp("Third Degree");
+        Burn = "Third";
+    else
+        Burn = "Second";
     end
 else
-    disp("No burn");
+    Burn = "None";
 end
+
+end
+
