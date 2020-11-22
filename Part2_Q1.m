@@ -26,8 +26,8 @@ Tcurrent(1) = T_Outer;
 T = 50;
 N = T/dt;
 
-Cs = zeros(N+1, NElem+1);
-Cs(1,:) = Tcurrent;
+Ts = zeros(N+1, NElem+1);
+Ts(1,:) = Tcurrent;
 
 for tstep = 1:N
     %Loop over elements
@@ -57,9 +57,9 @@ for tstep = 1:N
     end
     %Set Dirichlet Boundary Conditions
     [GM, GV] = applyBCs(GM, GV, D, 'Dlet', T_Outer, 'Dlet', 310.15, NElem+1);
-    %Solve the final matrix system to obtain Cnext
+    %Solve the final matrix system to obtain Tnext
     Tnext = GM\GV;
-    %Set Ccurrent equal to Cnext
+    %Set Tcurrent equal to Cnext
     Tcurrent = Tnext;
     %Re-initialise zeros
     GM = zeros(NElem+1);
@@ -67,22 +67,22 @@ for tstep = 1:N
     K = zeros(NElem+1);
     GV = zeros(NElem+1, 1);
     %Plot/write to file the solution Ccurrent
-    Cs(tstep+1, :) = Tcurrent;
+    Ts(tstep+1, :) = Tcurrent;
 end
 
 figure;
 hold on;
 x = linspace(0, 0.01, NElem+1);
 for i = 2:10:102
-    plot(x, Cs(i,:));
+    plot(x, Ts(i,:));
 end
 
 %%%%%%% Part 2 %%%%%%%
 ENodeIndex = (((NElem)*(0.01/6))/0.01) + 1;
 DNodeIndex = (((NElem)*(0.005))/0.01) + 1;
 
-E_Temps = Cs(:, ENodeIndex);
-D_Temps = Cs(:, DNodeIndex);
+E_Temps = Ts(:, ENodeIndex);
+D_Temps = Ts(:, DNodeIndex);
 
 burn_limit = 317.5;
 
