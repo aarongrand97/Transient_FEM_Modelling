@@ -1,4 +1,4 @@
-T_Outer = 328.41;
+T_Outer = 393.15;
 %Step 1 Initialise mesh
 NElem = 12;
 mesh = OneDimLinearMeshGen(0,0.01,NElem);

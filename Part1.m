@@ -1,11 +1,11 @@
-Cs = zeros(101, 11);
+Cs = zeros(1001, 11);
 
 %Step 1 Initialise mesh
 NElem = 10;
 mesh = OneDimLinearMeshGen(0,1,NElem);
 %Step 2 Initialise time integration scheme
 theta = 1; % Backwards Euler
-dt = 0.01;
+dt = 0.001;
 %Step 3 Define material coefficients
 D = 1;
 Lmbd = 0;
@@ -91,7 +91,7 @@ c_anlytc = TransientAnalyticSoln(x, t);
 plot(t, c_anlytc, "-k", "Linewidth", 1.0);
 
 plotb_ts = 0:0.1:1;
-rows = int8(plotb_ts/dt + 1);
+rows = int16(plotb_ts/dt + 1);
 plot(plotb_ts, Cs(rows, 9), "--xk", "Linewidth", 1.0, "MarkerSize", 10);
 
 ylim([0 1])
